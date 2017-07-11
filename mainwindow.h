@@ -27,10 +27,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase DatabaseConnect();
-    void Refresh(QSqlDatabase);
-    void TableFilling();
-    QSqlQuery QueryPrepere();
+    QSqlDatabase DatabaseConnect();     // Connecting to Database and showing result tin MessageBox
+    void Refresh(QSqlDatabase);         // Refreshing main QTableWidget
+    void TableFilling();                // Function that prepare QTableWighet for Sql data and seting headers from sql headers
+    QSqlQuery QueryPrepere();           // Funkction that prepare QSqlQuery for other funkcions
 };
 
 #endif // MAINWINDOW_H

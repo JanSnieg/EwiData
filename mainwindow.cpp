@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QSqlDatabase MainDatabase = DatabaseConnect();
+    DatabaseConnect();
     TableFilling();
 }
 
@@ -18,6 +18,7 @@ MainWindow::~MainWindow()
 
 QSqlDatabase MainWindow::DatabaseConnect()
 {
+    // TODO Make Alaviability to change Database things
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
     db.close();
     db.setHostName("localhost");
@@ -33,6 +34,7 @@ QSqlDatabase MainWindow::DatabaseConnect()
     mBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
     mBox.setDefaultButton(QMessageBox::Ok);
     int ret = mBox.exec();
+    // TODO Make this buttons worth something
     switch (ret)
     {
     case QMessageBox::Ok:
@@ -49,7 +51,7 @@ QSqlDatabase MainWindow::DatabaseConnect()
 
 void MainWindow::Refresh(QSqlDatabase db)
 {
-
+    // TODO Proper refreshing funkcjin
 }
 
 void MainWindow::TableFilling()
