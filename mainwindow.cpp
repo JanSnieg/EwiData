@@ -7,8 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    DatabaseConnect();
-    TableFilling();
+    MessageDatabase(ConnectDatabase());
+    //PrepareQuery("kierowca");
+    PrepareQuery("ciagnik");
+    //PrepareQuery("naczepa");
 }
 
 MainWindow::~MainWindow()
@@ -16,21 +18,28 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QSqlDatabase MainWindow::DatabaseConnect()
+QString MainWindow::ConnectDatabase()
 {
     // TODO Make Alaviability to change Database things
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.close();
-    db.setHostName("localhost");
-    db.setDatabaseName("EwiData");
-    db.setUserName("root");
-    db.setPassword("root");
+    QSqlDatabase database = QSqlDatabase::addDatabase("QMYSQL");
+    database.setHostName("localhost");
+    database.setDatabaseName("EwiData");
+    database.setUserName("root");
+    database.setPassword("root");
+    if (database.isValid())
+    {
+        database.open();
+        return "Połączono!\n";
+    }
+    else
+      return "Database Error: " + database.lastError().text();
+}
+
+void MainWindow::MessageDatabase(QString message)
+{
     QMessageBox mBox;
     mBox.setText("Database information");
-    if (db.isValid())
-        mBox.setInformativeText("Connected");
-    else
-        mBox.setInformativeText("Database Error: " + db.lastError().text());
+    mBox.setInformativeText(message);
     mBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
     mBox.setDefaultButton(QMessageBox::Ok);
     int ret = mBox.exec();
@@ -38,49 +47,109 @@ QSqlDatabase MainWindow::DatabaseConnect()
     switch (ret)
     {
     case QMessageBox::Ok:
-        db.open();
+        //database.open();
         break;
     case QMessageBox::Cancel:
-        db.close();
+        //database.close();
         break;
     default:
         break;
     }
-    return db;
 }
 
-void MainWindow::Refresh(QSqlDatabase db)
+void MainWindow::NameHeaders(QSqlQuery mainQuery, int numberOfColums)
 {
-    // TODO Proper refreshing funkcjin
-}
-
-void MainWindow::TableFilling()
-{
-    QSqlQuery kierowca = QueryPrepere();
-    ui->tableWidget_Main->setRowCount(kierowca.size());
-    ui->tableWidget_Main->setColumnCount(kierowca.record().count());
-    int row =0;
+    ui->tableWidget_Main->setRowCount(mainQuery.size());
+    ui->tableWidget_Main->setColumnCount(numberOfColums);
     // Setting headers names from sql to QTableWidget
-    for (int columnCount = 0; columnCount<kierowca.record().count(); columnCount++)
+    for (int columnCount = 0; columnCount<mainQuery.record().count(); columnCount++)
+         ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(mainQuery.record().fieldName(columnCount)));
+}
+
+void MainWindow::FillTable(QSqlQuery mainQuery, int numberOfColums)
     {
-         ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(kierowca.record().fieldName(columnCount)));
-    }
+    NameHeaders(mainQuery, numberOfColums);
+    int row =0;
     // Filling QTableWidget with data from Sql
-    while (kierowca.next())
+    while (mainQuery.next())
     {
-        for (int column = 0; column<ui->tableWidget_Main->columnCount(); column++, row++)
+        for (int column = 0; column<numberOfColums; column++, row++)
         {
-            ui->tableWidget_Main->setItem(row, column, new QTableWidgetItem(kierowca.value(column).toString()));
+            ui->tableWidget_Main->setItem(row, column, new QTableWidgetItem(mainQuery.value(column).toString()));
         }
         ui->tableWidget_Main->resizeColumnsToContents();
     }
 }
 
-QSqlQuery MainWindow::QueryPrepere()
+QSqlQuery MainWindow::PrepareQuery(QString tableName)
 {
-    QSqlQuery kierowca("SELECT * FROM EwiData.kierowcy");
-    kierowca.exec();
-    return kierowca;
+    QSqlQuery mainQuery("SELECT * FROM " + tableName);
+    if (!mainQuery.exec())
+    {
+        if (tableName == "kierowca")
+            MessageDatabase(CreateTableKierowca());
+        else if (tableName == "ciagnik")
+            MessageDatabase(CreateTableCiagnik());
+        else if (tableName == "naczepa")
+            MessageDatabase(CreateTableNaczepa());
+    }
+    else
+    {
+        if (tableName == "kierowca")
+            FillTable(mainQuery, 7);
+        else if (tableName == "ciagnik")
+            FillTable(mainQuery, 7);
+        else if (tableName == "naczepa")
+            FillTable(mainQuery, 8);
+    }
+    return mainQuery;
 }
 
+QString MainWindow::CreateTableKierowca()
+{
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.kierowca(kierowcaID INT UNIQUE PRIMARY KEY NOT NULL, "
+                        "Imie VARCHAR(20) NOT NULL, Nazwisko VARCHAR(20) NOT NULL, "
+                        "NumerDowodu VARCHAR (20) UNIQUE NOT NULL, DataDowodu DATE, Pesel BIGINT UNIQUE NOT NULL, "
+                        "NumerADR FLOAT(2), DataADR DATE)");
+    if (mainQuery.isValid())
+    {
+        mainQuery.exec();
+        return "Wszystko poszło dobrze!";
+    }
+    else
+        return "Query error: " + mainQuery.lastError().text();
+}
 
+QString MainWindow::CreateTableCiagnik()
+{
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRej VARCHAR (20) UNIQUE NOT NULL, "
+                        "DataPrzegladu DATE, DataTachografu DATE, "
+                        "DataOsi1 DATE, DataOsi2 DATE, "
+                        "ciagnikID INT NOT NULL, kierowcaID INT,"
+                        "PRIMARY KEY (ciagnikID), "
+                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
+    if (mainQuery.isValid())
+    {
+        mainQuery.exec();
+        return "Wszystko poszło dobrze!";
+    }
+    else
+        return "Query error: " + mainQuery.lastError().text();
+}
+
+QString MainWindow::CreateTableNaczepa()
+{
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRej VARCHAR (20) UNIQUE NOT NULL, "
+                        "DataPrzegladu DATE, DataTachografu DATE, "
+                        "DataOsi1 DATE, DataOsi2 DATE, DataOsi3 DATE, "
+                        "naczepaID INT NOT NULL, kierowcaID INT,"
+                        "PRIMARY KEY (naczepaID), "
+                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
+    if (mainQuery.isValid())
+    {
+        mainQuery.exec();
+        return "Wszystko poszło dobrze!";
+    }
+    else
+        return "Query error: " + mainQuery.lastError().text();
+}

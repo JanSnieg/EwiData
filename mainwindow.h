@@ -27,10 +27,16 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase DatabaseConnect();     // Connecting to Database and showing result tin MessageBox
-    void Refresh(QSqlDatabase);         // Refreshing main QTableWidget
-    void TableFilling();                // Function that prepare QTableWighet for Sql data and seting headers from sql headers
-    QSqlQuery QueryPrepere();           // Funkction that prepare QSqlQuery for other funkcions
+    QString CreateTableKierowca();
+    QString CreateTableCiagnik();
+    QString CreateTableNaczepa();
+    QString ConnectDatabase();             // Connecting to Database
+    void MessageDatabase(QString); // and showing result in the MessageBox
+    void NameHeaders(QSqlQuery, int);               // Seting QTableWidget headers names from Sql headers
+    void FillTable(QSqlQuery, int);                // Function that prepare and fill QTableWighet for Sql data
+
+    // Refreshing main QTableWidget
+    QSqlQuery PrepareQuery(QString);           // Funkction that prepare QSqlQuery for other funkcions
 };
 
 #endif // MAINWINDOW_H
