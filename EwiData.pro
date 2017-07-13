@@ -27,12 +27,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    preferences.cpp
+    preferences.cpp \
+    addkierowca.cpp \
+    addciagnik.cpp \
+    addnaczepa.cpp
 
 HEADERS += \
         mainwindow.h \
-    preferences.h
+    preferences.h \
+    addkierowca.h \
+    addciagnik.h \
+    addnaczepa.h
 
 FORMS += \
         mainwindow.ui \
-    preferences.ui
+    preferences.ui \
+    addkierowca.ui \
+    addciagnik.ui \
+    addnaczepa.ui

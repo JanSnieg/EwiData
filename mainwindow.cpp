@@ -8,9 +8,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     MessageDatabase(ConnectDatabase());
-    //PrepareQuery("kierowca");
-    PrepareQuery("ciagnik");
-    //PrepareQuery("naczepa");
+    PrepareQuery();
+    connect(ui->actionUstawiania, SIGNAL(triggered()), this, SLOT(showPreferencesWindow()));
+    connect(ui->actionDodaj, SIGNAL(triggered(bool)), this, SLOT(Add()));
 }
 
 MainWindow::~MainWindow()
@@ -57,23 +57,23 @@ void MainWindow::MessageDatabase(QString message)
     }
 }
 
-void MainWindow::NameHeaders(QSqlQuery mainQuery, int numberOfColums)
+void MainWindow::NameHeaders(QSqlQuery mainQuery)
 {
     ui->tableWidget_Main->setRowCount(mainQuery.size());
-    ui->tableWidget_Main->setColumnCount(numberOfColums);
+    ui->tableWidget_Main->setColumnCount(mainQuery.record().count());
     // Setting headers names from sql to QTableWidget
     for (int columnCount = 0; columnCount<mainQuery.record().count(); columnCount++)
          ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(mainQuery.record().fieldName(columnCount)));
 }
 
-void MainWindow::FillTable(QSqlQuery mainQuery, int numberOfColums)
+void MainWindow::FillTable(QSqlQuery mainQuery)
     {
-    NameHeaders(mainQuery, numberOfColums);
+    NameHeaders(mainQuery);
     int row =0;
     // Filling QTableWidget with data from Sql
     while (mainQuery.next())
     {
-        for (int column = 0; column<numberOfColums; column++, row++)
+        for (int column = 0; column<mainQuery.record().count(); column++, row++)
         {
             ui->tableWidget_Main->setItem(row, column, new QTableWidgetItem(mainQuery.value(column).toString()));
         }
@@ -81,28 +81,74 @@ void MainWindow::FillTable(QSqlQuery mainQuery, int numberOfColums)
     }
 }
 
-QSqlQuery MainWindow::PrepareQuery(QString tableName)
+QSqlQuery MainWindow::PrepareQuery()
 {
-    QSqlQuery mainQuery("SELECT * FROM " + tableName);
+    // TODO Make sort by Name etc.
+    QSqlQuery mainQuery("SELECT kierowca.Imie, kierowca.Nazwisko, kierowca.NumerDowodu, kierowca.Pesel, "
+                        "ciagnik.NumerRej, naczepa.NumerRej "
+                        "FROM ewidata.kierowca, ewidata.ciagnik, ewidata.naczepa");
     if (!mainQuery.exec())
     {
-        if (tableName == "kierowca")
-            MessageDatabase(CreateTableKierowca());
-        else if (tableName == "ciagnik")
-            MessageDatabase(CreateTableCiagnik());
-        else if (tableName == "naczepa")
-            MessageDatabase(CreateTableNaczepa());
+        MessageDatabase(CreateTableKierowca());
+        MessageDatabase(CreateTableCiagnik());
+        MessageDatabase(CreateTableNaczepa());
     }
     else
     {
-        if (tableName == "kierowca")
-            FillTable(mainQuery, 7);
-        else if (tableName == "ciagnik")
-            FillTable(mainQuery, 7);
-        else if (tableName == "naczepa")
-            FillTable(mainQuery, 8);
+        FillTable(mainQuery);
     }
     return mainQuery;
+}
+
+void MainWindow::Add()
+{
+    QMessageBox mBox;
+    mBox.setText("Dodawanie");
+    mBox.setInformativeText("Co chciałbyś dodać?");
+    QPushButton *abortButton = mBox.addButton(tr("Anuluj"), QMessageBox::ActionRole);
+    QPushButton *addKierowcaButton = mBox.addButton(tr("Kierowca") ,QMessageBox::ActionRole);
+    QPushButton *addCiagnikButton = mBox.addButton(tr("Ciągnik"), QMessageBox::ActionRole);
+    QPushButton *addNaczepaButton = mBox.addButton(tr("Naczepa"), QMessageBox::ActionRole);
+    mBox.setDefaultButton(abortButton);
+
+    mBox.exec();
+    if (mBox.clickedButton() == abortButton)
+        mBox.close();
+    else if (mBox.clickedButton() == addKierowcaButton)
+        showAddKierowcaWindow();
+    else if (mBox.clickedButton() == addCiagnikButton)
+        showAddCiagnikWindow();
+    else if (mBox.clickedButton() == addNaczepaButton)
+        showAddNaczepaWindow();
+
+}
+
+void MainWindow::showAddKierowcaWindow()
+{
+    addKierowcaWindow = new AddKierowca(this);
+    addKierowcaWindow->show();
+    addKierowcaWindow->exec();
+}
+
+void MainWindow::showAddCiagnikWindow()
+{
+    addCiagnikWindow = new AddCiagnik(this);
+    addCiagnikWindow->show();
+    addCiagnikWindow->exec();
+}
+
+void MainWindow::showAddNaczepaWindow()
+{
+    AddNaczepaWindow = new AddNaczepa(this);
+    AddNaczepaWindow->show();
+    AddNaczepaWindow->exec();
+}
+
+void MainWindow::showPreferencesWindow()
+{
+    PreferencesWindow = new Preferences(this);
+    PreferencesWindow->show();
+    PreferencesWindow->exec();
 }
 
 QString MainWindow::CreateTableKierowca()

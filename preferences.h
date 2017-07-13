@@ -2,6 +2,8 @@
 #define PREFERENCES_H
 
 #include <QDialog>
+#include <QApplication>
+#include <QCoreApplication>
 
 namespace Ui {
 class Preferences;
@@ -14,6 +16,7 @@ class Preferences : public QDialog
 public:
     explicit Preferences(QWidget *parent = 0);
     ~Preferences();
+
 
 private:
     Ui::Preferences *ui;

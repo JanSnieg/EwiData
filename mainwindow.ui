@@ -89,12 +89,19 @@
      <string>Menu</string>
     </property>
     <addaction name="actionUstawiania"/>
+    <addaction name="separator"/>
+    <addaction name="actionDodaj"/>
    </widget>
    <addaction name="menuMenu"/>
   </widget>
   <action name="actionUstawiania">
    <property name="text">
     <string>Ustawiania</string>
+   </property>
+  </action>
+  <action name="actionDodaj">
+   <property name="text">
+    <string>Dodaj</string>
    </property>
   </action>
  </widget>
