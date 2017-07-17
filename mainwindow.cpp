@@ -7,10 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    MessageDatabase(ConnectDatabase());
-    PrepareQuery();
+    Refreshing();
     connect(ui->actionUstawiania, SIGNAL(triggered()), this, SLOT(showPreferencesWindow()));
     connect(ui->actionDodaj, SIGNAL(triggered(bool)), this, SLOT(Add()));
+
 }
 
 MainWindow::~MainWindow()
@@ -18,14 +18,30 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::Refreshing()
+{
+    MessageDatabase(ConnectDatabase());
+
+    FillTable(PrepareQuery());
+}
+
 QString MainWindow::ConnectDatabase()
 {
     // TODO Make Alaviability to change Database things
     QSqlDatabase database = QSqlDatabase::addDatabase("QMYSQL");
+//    Preferences pref;
+//    std::vector <QString> preferencesVector = pref.openFromFile();
+
+//    database.setHostName(preferencesVector[1]);
+//    database.setDatabaseName(preferencesVector[2]);
+//    database.setUserName(preferencesVector[3]);
+//    database.setPassword(preferencesVector[4]);
+
     database.setHostName("localhost");
     database.setDatabaseName("EwiData");
     database.setUserName("root");
     database.setPassword("root");
+
     if (database.isValid())
     {
         database.open();
@@ -73,7 +89,7 @@ void MainWindow::FillTable(QSqlQuery mainQuery)
     // Filling QTableWidget with data from Sql
     while (mainQuery.next())
     {
-        for (int column = 0; column<mainQuery.record().count(); column++, row++)
+        for (int column = 0; column<mainQuery.record().count(); column++)
         {
             ui->tableWidget_Main->setItem(row, column, new QTableWidgetItem(mainQuery.value(column).toString()));
         }
@@ -87,6 +103,7 @@ QSqlQuery MainWindow::PrepareQuery()
     QSqlQuery mainQuery("SELECT kierowca.Imie, kierowca.Nazwisko, kierowca.NumerDowodu, kierowca.Pesel, "
                         "ciagnik.NumerRej, naczepa.NumerRej "
                         "FROM ewidata.kierowca, ewidata.ciagnik, ewidata.naczepa");
+//    QSqlQuery mainQuery("SELECT * FROM ewidata.kierowca");
     if (!mainQuery.exec())
     {
         MessageDatabase(CreateTableKierowca());
@@ -153,7 +170,7 @@ void MainWindow::showPreferencesWindow()
 
 QString MainWindow::CreateTableKierowca()
 {
-    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.kierowca(kierowcaID INT UNIQUE PRIMARY KEY NOT NULL, "
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.kierowca(kierowcaID INT UNIQUE PRIMARY KEY NOT NULL AUTO_INCREMENT, "
                         "Imie VARCHAR(20) NOT NULL, Nazwisko VARCHAR(20) NOT NULL, "
                         "NumerDowodu VARCHAR (20) UNIQUE NOT NULL, DataDowodu DATE, Pesel BIGINT UNIQUE NOT NULL, "
                         "NumerADR FLOAT(2), DataADR DATE)");
@@ -170,8 +187,8 @@ QString MainWindow::CreateTableCiagnik()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRej VARCHAR (20) UNIQUE NOT NULL, "
                         "DataPrzegladu DATE, DataTachografu DATE, "
-                        "DataOsi1 DATE, DataOsi2 DATE, "
-                        "ciagnikID INT NOT NULL, kierowcaID INT,"
+                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
+                        "ciagnikID INT NOT NULL AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (ciagnikID), "
                         "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
     if (mainQuery.isValid())
@@ -186,9 +203,9 @@ QString MainWindow::CreateTableCiagnik()
 QString MainWindow::CreateTableNaczepa()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRej VARCHAR (20) UNIQUE NOT NULL, "
-                        "DataPrzegladu DATE, DataTachografu DATE, "
-                        "DataOsi1 DATE, DataOsi2 DATE, DataOsi3 DATE, "
-                        "naczepaID INT NOT NULL, kierowcaID INT,"
+                        "DataPrzegladu DATE, "
+                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, Os3 INT, DataOsi3 DATE, "
+                        "naczepaID INT NOT NULL AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (naczepaID), "
                         "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
     if (mainQuery.isValid())
@@ -198,4 +215,9 @@ QString MainWindow::CreateTableNaczepa()
     }
     else
         return "Query error: " + mainQuery.lastError().text();
+}
+
+void MainWindow::on_Button_Refresh_clicked()
+{
+    Refreshing();
 }

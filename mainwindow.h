@@ -34,19 +34,17 @@ public:
     AddNaczepa *AddNaczepaWindow;
 
 
-
 private:
     Ui::MainWindow *ui;
+    void Refreshing();
     QString CreateTableKierowca();
     QString CreateTableCiagnik();
     QString CreateTableNaczepa();
-    QString ConnectDatabase();             // Connecting to Database
-    void MessageDatabase(QString); // and showing result in the MessageBox
-    void NameHeaders(QSqlQuery);               // Seting QTableWidget headers names from Sql headers
-    void FillTable(QSqlQuery);                // Function that prepare and fill QTableWighet for Sql data
-
-    // Refreshing main QTableWidget
-    QSqlQuery PrepareQuery();           // Funkction that prepare QSqlQuery for other funkcions
+    QString ConnectDatabase();              // Connecting to Database
+    void MessageDatabase(QString);          // and showing result in the MessageBox
+    void NameHeaders(QSqlQuery);            // Seting QTableWidget headers names from Sql headers
+    void FillTable(QSqlQuery);              // Function that prepare and fill QTableWighet for Sql data
+    QSqlQuery PrepareQuery();               // Funkction that prepare QSqlQuery for other funkcions
 
     void showAddKierowcaWindow();
     void showAddCiagnikWindow();
@@ -55,6 +53,8 @@ private:
 public slots:
     void Add();
     void showPreferencesWindow();
+private slots:
+    void on_Button_Refresh_clicked();
 };
 
 #endif // MAINWINDOW_H

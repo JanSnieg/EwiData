@@ -1,0 +1,4 @@
+localhost
+EwiData
+root
+root
