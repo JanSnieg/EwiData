@@ -19,16 +19,15 @@ class Preferences : public QDialog
 public:
     explicit Preferences(QWidget *parent = 0);
     ~Preferences();
-    void setPreferences();
-    void saveIntoFile();
-    std::vector <QString> openFromFile();
 
-public slots:
-
-    bool on_pushButtonOk_clicked();
+    void DialogPrepare(std::vector<QString>);   //Opens file, and fill lineEdits with data from there
+    std::vector <QString> openFromFile();       //Method that open preferences from preferencesFile and returnig vector filled with preferances
+                                                //Used in mainWindow::ConnectDatabase() method
+    void saveIntoFile();                        //Method to save filled preferances into preferencesFile.txt
 
 private slots:
-    void on_pushButtonAnuluj_clicked();
+    void on_pushButtonAnuluj_clicked();         //Closes window without saving anything
+    void on_pushButtonOk_clicked();             //Saves filled preferences into file
 
 private:
     Ui::Preferences *ui;

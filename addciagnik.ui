@@ -82,7 +82,7 @@
    <item row="8" column="1">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>TextLabel</string>
+      <string>ID kierowcy</string>
      </property>
     </widget>
    </item>

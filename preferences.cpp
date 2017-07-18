@@ -7,18 +7,27 @@ Preferences::Preferences(QWidget *parent) :
     ui(new Ui::Preferences)
 {
     ui->setupUi(this);
+    DialogPrepare(openFromFile());
 }
 
-Preferences::~Preferences()
+Preferences::~Preferences()                         { delete ui; }
+
+void Preferences::on_pushButtonAnuluj_clicked()     { this->close(); }
+void Preferences::on_pushButtonOk_clicked()         { saveIntoFile(); this->close(); }
+
+void Preferences::DialogPrepare(std::vector<QString> preferencesVector)
 {
-    delete ui;
+    ui->lineEditHos->setText(preferencesVector[0]);
+    ui->lineEditDatabase->setText(preferencesVector[1]);
+    ui->lineEditUser->setText(preferencesVector[2]);
+    ui->lineEditPassword->setText(preferencesVector[3]);
 }
 
 std::vector<QString> Preferences::openFromFile()
 {
     std::string line;
     std::vector <QString> preferencesVector;
-    std::fstream preferencesFile;
+    std::ifstream preferencesFile;
     preferencesFile.open("preferencesFile.txt");
     if (preferencesFile.is_open())
     {
@@ -30,29 +39,17 @@ std::vector<QString> Preferences::openFromFile()
 
 void Preferences::saveIntoFile()
 {
-    std::fstream preferencesFile;
+    std::ofstream preferencesFile;
     preferencesFile.open("preferencesFile.txt");
     if (preferencesFile.is_open())
     {
-        preferencesFile << ui->lineEditHos;
-        preferencesFile << ui->lineEditDatabase;
-        preferencesFile << ui->lineEditUser;
-        preferencesFile << ui->lineEditPassword;
+        preferencesFile << ui->lineEditHos->text().toStdString() << std::endl;
+        preferencesFile << ui->lineEditDatabase->text().toStdString() << std::endl;
+        preferencesFile << ui->lineEditUser->text().toStdString() << std::endl;
+        preferencesFile << ui->lineEditPassword->text().toStdString() << std::endl;
         QMessageBox::information(NULL, "Informacja", "Plik z ustawieniami został zapisany", QMessageBox::Ok);
+        preferencesFile.close();
     }
     else
         QMessageBox::warning(NULL, "UWAGA!", "Plik z ustawieniami nie został otwarty", QMessageBox::Ok);
-    preferencesFile.close();
-}
-
-bool Preferences::on_pushButtonOk_clicked()
-{
-    saveIntoFile();
-    this->close();
-    return true;
-}
-
-void Preferences::on_pushButtonAnuluj_clicked()
-{
-    this->close();
 }

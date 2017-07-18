@@ -20,19 +20,16 @@ class AddKierowca : public QDialog
 public:
     explicit AddKierowca(QWidget *parent = 0);
     ~AddKierowca();
-    int QueryPrepare();
-    int KierowcaIdReturn();
-    int GetLastId();
-    void PrepareDialog();
+    void PrepareDialog();               //Prepering DialogWindow, for example filling dateEdits with current date
+    void QueryPrepare();                //Prepering Query for adding data to sql
+    int GetLastId();                    //This method is used in AddCiagniik, and AddNaczepa to fill last inserted kierowcaID in spinBoxes
 
 private slots:
-    int on_pushButtonOk_clicked();
-
-    void on_pushButtonAnuluj_clicked();
+    void on_pushButtonOk_clicked();     //On "OK" button clicked adding everything filled to sql
+    void on_pushButtonAnuluj_clicked(); //Just closing this window
 
 private:
     Ui::AddKierowca *ui;
-
 };
 
 #endif // ADDKIEROWCA_H

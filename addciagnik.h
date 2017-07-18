@@ -7,7 +7,7 @@
 #include <QSqlError>
 #include <QString>
 #include <QDate>
-#include <addkierowca.h>
+#include <addkierowca.h>                    //This is for method getLastId()
 
 
 namespace Ui {
@@ -21,14 +21,12 @@ class AddCiagnik : public QDialog
 public:
     explicit AddCiagnik(QWidget *parent = 0);
     ~AddCiagnik();
-    void QueryPrepare();
-    void PrepareDialog();
-    int GetLastId();
+    void PrepareDialog();                   //Prepering DialogWindow, filling dates with current time etc.
+    void QueryPrepare();                    //Prepering query to add Ciagnik
 
 private slots:
-    void on_pushButtonOk_clicked();
-
-    void on_pushButtonAnuluj_clicked();
+    void on_pushButtonOk_clicked();         //When button "OK" is clicked SQL is adding data from lineEdits and dateEdit
+    void on_pushButtonAnuluj_clicked();     //Just closing dialog
 
 private:
     Ui::AddCiagnik *ui;

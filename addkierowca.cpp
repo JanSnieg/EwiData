@@ -9,12 +9,18 @@ AddKierowca::AddKierowca(QWidget *parent) :
     PrepareDialog();
 }
 
-AddKierowca::~AddKierowca()
+AddKierowca::~AddKierowca()                     { delete ui; }
+
+void AddKierowca::on_pushButtonOk_clicked()     { QueryPrepare(); }
+void AddKierowca::on_pushButtonAnuluj_clicked() { this->close(); }
+
+void AddKierowca::PrepareDialog()
 {
-    delete ui;
+    ui->dateEditAdr->setDate(QDate::currentDate());
+    ui->dateEditDoowod->setDate(QDate::currentDate());
 }
 
-int AddKierowca::QueryPrepare()
+void AddKierowca::QueryPrepare()
 {
     QSqlQuery addKierowcaQuery;
     addKierowcaQuery.prepare("INSERT INTO EwiData.kierowca (Imie, Nazwisko, NumerDowodu, DataDowodu, Pesel, NumerADR, DataADR)"
@@ -38,25 +44,9 @@ int AddKierowca::QueryPrepare()
 
 int AddKierowca::GetLastId()
 {
-    QSqlQuery lastIdQuery("SELECT kierowcaID from ewidata.kierowca");
-    return lastIdQuery.lastInsertId().toInt();
-
-}
-
-void AddKierowca::PrepareDialog()
-{
-    ui->dateEditAdr->setDate(QDate::currentDate());
-    ui->dateEditDoowod->setDate(QDate::currentDate());
-}
-
-int AddKierowca::on_pushButtonOk_clicked()
-{
-   return QueryPrepare();
-}
-
-
-
-void AddKierowca::on_pushButtonAnuluj_clicked()
-{
-    this->close();
+    QSqlQuery lastIdQuery("SELECT kierowcaID FROM ewidata.kierowca ORDER BY kierowcaID DESC LIMIT 1");
+    lastIdQuery.exec();
+    while (lastIdQuery.next())
+        return lastIdQuery.value(0).toInt();
+    return 0;
 }

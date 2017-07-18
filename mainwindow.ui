@@ -47,12 +47,12 @@
       </item>
       <item>
        <property name="text">
-        <string>Numer rej. Ciągninka</string>
+        <string>ID</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Numer rej. Naczepy</string>
+        <string>Pesel</string>
        </property>
       </item>
      </widget>

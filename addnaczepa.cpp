@@ -9,9 +9,20 @@ AddNaczepa::AddNaczepa(QWidget *parent) :
     PrepareDialog();
 }
 
-AddNaczepa::~AddNaczepa()
+AddNaczepa::~AddNaczepa()                           { delete ui; }
+
+void AddNaczepa::on_pushButtonOk_clicked()          { QueryPrepare(); }
+void AddNaczepa::on_pushButtonAnuluj_clicked()      { this->close(); }
+
+void AddNaczepa::PrepareDialog()
 {
-    delete ui;
+    AddKierowca kierowca;
+    ui->dateEditOs3_2->setDate(QDate::currentDate());
+    ui->dateEditOs4->setDate(QDate::currentDate());
+    ui->dateEditOs5->setDate(QDate::currentDate());
+    ui->dateEditPrzeglad->setDate(QDate::currentDate());
+    ui->dateEditTachograf->setDate(QDate::currentDate());
+    ui->spinBoxIdKierowca->setValue(kierowca.GetLastId());
 }
 
 void AddNaczepa::QueryPrepare()
@@ -36,26 +47,5 @@ void AddNaczepa::QueryPrepare()
         QMessageBox::information(NULL, "Dodano", "Wpisane dane dodane do Bazy danych", QMessageBox::Ok);
         this->close();
     }
-    this->close();
-}
-
-void AddNaczepa::PrepareDialog()
-{
-    AddKierowca kierowca;
-    ui->dateEditOs3_2->setDate(QDate::currentDate());
-    ui->dateEditOs4->setDate(QDate::currentDate());
-    ui->dateEditOs5->setDate(QDate::currentDate());
-    ui->dateEditPrzeglad->setDate(QDate::currentDate());
-    ui->dateEditTachograf->setDate(QDate::currentDate());
-    ui->spinBoxIdKierowca->setValue(kierowca.GetLastId());
-}
-
-void AddNaczepa::on_pushButtonOk_clicked()
-{
-    QueryPrepare();
-}
-
-void AddNaczepa::on_pushButtonAnuluj_clicked()
-{
     this->close();
 }

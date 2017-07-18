@@ -7,7 +7,7 @@
 #include <QSqlError>
 #include <QString>
 #include <QDate>
-#include <addkierowca.h>
+#include <addkierowca.h>            //This is for method getLastId()
 
 namespace Ui {
 class AddNaczepa;
@@ -20,14 +20,13 @@ class AddNaczepa : public QDialog
 public:
     explicit AddNaczepa(QWidget *parent = 0);
     ~AddNaczepa();
-    void QueryPrepare();
-    void PrepareDialog();
 
+    void PrepareDialog();               //Prepering DialogWindow, for example filling dateEdits with current date
+    void QueryPrepare();                //Prepering Query for adding data to sql
 
 private slots:
-    void on_pushButtonOk_clicked();
-
-    void on_pushButtonAnuluj_clicked();
+    void on_pushButtonOk_clicked();     //On "OK" button clicked adding everything filled to sql
+    void on_pushButtonAnuluj_clicked(); //Just closing this window
 
 private:
     Ui::AddNaczepa *ui;

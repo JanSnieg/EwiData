@@ -18,29 +18,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setMainColumn()                { mainColumn = 0; }
+void MainWindow::setMainColumn(int column)      { mainColumn += column; }
+void MainWindow::on_Button_Refresh_clicked()    { Refreshing(); }
+
 void MainWindow::Refreshing()
 {
+    setMainColumn();
     MessageDatabase(ConnectDatabase());
-
-    FillTable(PrepareQuery());
+    onC
 }
 
 QString MainWindow::ConnectDatabase()
 {
-    // TODO Make Alaviability to change Database things
     QSqlDatabase database = QSqlDatabase::addDatabase("QMYSQL");
-//    Preferences pref;
-//    std::vector <QString> preferencesVector = pref.openFromFile();
+    Preferences pref;
+    std::vector <QString> preferencesVector = pref.openFromFile();
 
-//    database.setHostName(preferencesVector[1]);
-//    database.setDatabaseName(preferencesVector[2]);
-//    database.setUserName(preferencesVector[3]);
-//    database.setPassword(preferencesVector[4]);
-
-    database.setHostName("localhost");
-    database.setDatabaseName("EwiData");
-    database.setUserName("root");
-    database.setPassword("root");
+    database.setHostName(preferencesVector[0]);
+    database.setDatabaseName(preferencesVector[1]);
+    database.setUserName(preferencesVector[2]);
+    database.setPassword(preferencesVector[3]);
 
     if (database.isValid())
     {
@@ -73,71 +71,93 @@ void MainWindow::MessageDatabase(QString message)
     }
 }
 
-void MainWindow::NameHeaders(QSqlQuery mainQuery)
-{
-    ui->tableWidget_Main->setRowCount(mainQuery.size());
-    ui->tableWidget_Main->setColumnCount(mainQuery.record().count());
-    // Setting headers names from sql to QTableWidget
-    for (int columnCount = 0; columnCount<mainQuery.record().count(); columnCount++)
-         ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(mainQuery.record().fieldName(columnCount)));
-}
-
-void MainWindow::FillTable(QSqlQuery mainQuery)
-    {
-    NameHeaders(mainQuery);
-    int row =0;
-    // Filling QTableWidget with data from Sql
-    while (mainQuery.next())
-    {
-        for (int column = 0; column<mainQuery.record().count(); column++)
-        {
-            ui->tableWidget_Main->setItem(row, column, new QTableWidgetItem(mainQuery.value(column).toString()));
-        }
-        ui->tableWidget_Main->resizeColumnsToContents();
-    }
-}
-
-QSqlQuery MainWindow::PrepareQuery()
+void MainWindow::PrepareQuery(QString orderByString)
 {
     // TODO Make sort by Name etc.
-    QSqlQuery mainQuery("SELECT kierowca.Imie, kierowca.Nazwisko, kierowca.NumerDowodu, kierowca.Pesel, "
-                        "ciagnik.NumerRej, naczepa.NumerRej "
-                        "FROM ewidata.kierowca, ewidata.ciagnik, ewidata.naczepa");
-//    QSqlQuery mainQuery("SELECT * FROM ewidata.kierowca");
-    if (!mainQuery.exec())
+    QSqlQuery kierowca ("SELECT Imie, Nazwisko, NumerDowodu, Pesel FROM ewidata.kierowca ORDER BY " + orderByString);
+    QSqlQuery ciagnik ("SELECT NumerRej FROM ewidata.ciagnik ORDER BY " + orderByString);
+    QSqlQuery naczepa ("SELECT NumerRej FROM ewidata.naczepa ORDER BY " + orderByString);
+    mainQueryVector.push_back(kierowca);
+    mainQueryVector.push_back(ciagnik);
+    mainQueryVector.push_back(naczepa);
+
+    for (int queryCount = 0; queryCount<3; queryCount++)
     {
-        MessageDatabase(CreateTableKierowca());
-        MessageDatabase(CreateTableCiagnik());
-        MessageDatabase(CreateTableNaczepa());
+        QMessageBox::warning(NULL,"For!", "queryCount: " + QString(queryCount),QMessageBox::Ok);
+        if (mainQueryVector[queryCount].isValid())
+        {
+            mainQueryVector[queryCount].exec();
+            FillTable(mainQueryVector[queryCount]);
+        }
+        else
+            QMessageBox::warning(NULL,"Query not Valid!", mainQueryVector[queryCount].lastError().text(),QMessageBox::Ok);
     }
-    else
-    {
-        FillTable(mainQuery);
-    }
-    return mainQuery;
 }
 
-void MainWindow::Add()
+void MainWindow::FillTable(QSqlQuery query)
 {
-    QMessageBox mBox;
-    mBox.setText("Dodawanie");
-    mBox.setInformativeText("Co chciałbyś dodać?");
-    QPushButton *abortButton = mBox.addButton(tr("Anuluj"), QMessageBox::ActionRole);
-    QPushButton *addKierowcaButton = mBox.addButton(tr("Kierowca") ,QMessageBox::ActionRole);
-    QPushButton *addCiagnikButton = mBox.addButton(tr("Ciągnik"), QMessageBox::ActionRole);
-    QPushButton *addNaczepaButton = mBox.addButton(tr("Naczepa"), QMessageBox::ActionRole);
-    mBox.setDefaultButton(abortButton);
+    ui->tableWidget_Main->setRowCount(query.size());
+    ui->tableWidget_Main->setColumnCount(6);
+    int row = 0;
+    for (int columnCount = mainColumn; columnCount<query.record().count(); columnCount++)
+        ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(query.record().fieldName(columnCount)));
+    // Filling QTableWidget with data from Sql
+    while (query.next())
+    {
+        for (int columnCount = mainColumn; columnCount<query.record().count(); columnCount++)
+            ui->tableWidget_Main->setItem(row, columnCount, new QTableWidgetItem(query.value(columnCount).toString()));
+        row++;
+    }
+    setMainColumn(query.size());
+}
 
-    mBox.exec();
-    if (mBox.clickedButton() == abortButton)
-        mBox.close();
-    else if (mBox.clickedButton() == addKierowcaButton)
-        showAddKierowcaWindow();
-    else if (mBox.clickedButton() == addCiagnikButton)
-        showAddCiagnikWindow();
-    else if (mBox.clickedButton() == addNaczepaButton)
-        showAddNaczepaWindow();
+QString MainWindow::CreateTableKierowca()
+{
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.kierowca(kierowcaID INT UNIQUE PRIMARY KEY NOT NULL AUTO_INCREMENT, "
+                        "Imie VARCHAR(20) NOT NULL, Nazwisko VARCHAR(20) NOT NULL, "
+                        "NumerDowodu VARCHAR (20) UNIQUE NOT NULL, DataDowodu DATE, Pesel BIGINT UNIQUE NOT NULL, "
+                        "NumerADR FLOAT(2), DataADR DATE)");
+    if (mainQuery.isValid())
+    {
+        mainQuery.exec();
+        return "Wszystko poszło dobrze!";
+    }
+    else
+        return "Query error: " + mainQuery.lastError().text();
+}
 
+QString MainWindow::CreateTableCiagnik()
+{
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRej VARCHAR (20) UNIQUE , "
+                        "DataPrzegladu DATE, DataTachografu DATE, "
+                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
+                        "ciagnikID INT AUTO_INCREMENT, kierowcaID INT,"
+                        "PRIMARY KEY (ciagnikID), "
+                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
+    if (mainQuery.isValid())
+    {
+        mainQuery.exec();
+        return "Wszystko poszło dobrze!";
+    }
+    else
+        return "Query error: " + mainQuery.lastError().text();
+}
+
+QString MainWindow::CreateTableNaczepa()
+{
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRej VARCHAR (20) UNIQUE, "
+                        "DataPrzegladu DATE, "
+                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, Os3 INT, DataOsi3 DATE, "
+                        "naczepaID INT AUTO_INCREMENT, kierowcaID INT,"
+                        "PRIMARY KEY (naczepaID), "
+                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
+    if (mainQuery.isValid())
+    {
+        mainQuery.exec();
+        return "Wszystko poszło dobrze!";
+    }
+    else
+        return "Query error: " + mainQuery.lastError().text();
 }
 
 void MainWindow::showAddKierowcaWindow()
@@ -168,56 +188,34 @@ void MainWindow::showPreferencesWindow()
     PreferencesWindow->exec();
 }
 
-QString MainWindow::CreateTableKierowca()
+void MainWindow::Add()
 {
-    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.kierowca(kierowcaID INT UNIQUE PRIMARY KEY NOT NULL AUTO_INCREMENT, "
-                        "Imie VARCHAR(20) NOT NULL, Nazwisko VARCHAR(20) NOT NULL, "
-                        "NumerDowodu VARCHAR (20) UNIQUE NOT NULL, DataDowodu DATE, Pesel BIGINT UNIQUE NOT NULL, "
-                        "NumerADR FLOAT(2), DataADR DATE)");
-    if (mainQuery.isValid())
-    {
-        mainQuery.exec();
-        return "Wszystko poszło dobrze!";
-    }
-    else
-        return "Query error: " + mainQuery.lastError().text();
+    QMessageBox mBox;
+    mBox.setText("Dodawanie");
+    mBox.setInformativeText("Co chciałbyś dodać?");
+    QPushButton *abortButton = mBox.addButton(tr("Anuluj"), QMessageBox::ActionRole);
+    QPushButton *addKierowcaButton = mBox.addButton(tr("Kierowca") ,QMessageBox::ActionRole);
+    QPushButton *addCiagnikButton = mBox.addButton(tr("Ciągnik"), QMessageBox::ActionRole);
+    QPushButton *addNaczepaButton = mBox.addButton(tr("Naczepa"), QMessageBox::ActionRole);
+    mBox.setDefaultButton(abortButton);
+
+    mBox.exec();
+    if (mBox.clickedButton() == abortButton)
+        mBox.close();
+    else if (mBox.clickedButton() == addKierowcaButton)
+        showAddKierowcaWindow();
+    else if (mBox.clickedButton() == addCiagnikButton)
+        showAddCiagnikWindow();
+    else if (mBox.clickedButton() == addNaczepaButton)
+        showAddNaczepaWindow();
 }
 
-QString MainWindow::CreateTableCiagnik()
+void MainWindow::on_comboBox_Sort_activated(const QString &arg1)
 {
-    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRej VARCHAR (20) UNIQUE NOT NULL, "
-                        "DataPrzegladu DATE, DataTachografu DATE, "
-                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
-                        "ciagnikID INT NOT NULL AUTO_INCREMENT, kierowcaID INT,"
-                        "PRIMARY KEY (ciagnikID), "
-                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
-    if (mainQuery.isValid())
-    {
-        mainQuery.exec();
-        return "Wszystko poszło dobrze!";
-    }
-    else
-        return "Query error: " + mainQuery.lastError().text();
-}
-
-QString MainWindow::CreateTableNaczepa()
-{
-    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRej VARCHAR (20) UNIQUE NOT NULL, "
-                        "DataPrzegladu DATE, "
-                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, Os3 INT, DataOsi3 DATE, "
-                        "naczepaID INT NOT NULL AUTO_INCREMENT, kierowcaID INT,"
-                        "PRIMARY KEY (naczepaID), "
-                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
-    if (mainQuery.isValid())
-    {
-        mainQuery.exec();
-        return "Wszystko poszło dobrze!";
-    }
-    else
-        return "Query error: " + mainQuery.lastError().text();
-}
-
-void MainWindow::on_Button_Refresh_clicked()
-{
-    Refreshing();
+    if (arg1 == "Nazwisko")
+        PrepareQuery("Nazwisko");
+    else if (arg1 == "ID")
+        PrepareQuery("kierowcaID");
+    else if (arg1 == "Pesel")
+        PrepareQuery("Pesel");
 }

@@ -9,9 +9,19 @@ AddCiagnik::AddCiagnik(QWidget *parent) :
     PrepareDialog();
 }
 
-AddCiagnik::~AddCiagnik()
+AddCiagnik::~AddCiagnik()                       { delete ui; }
+
+void AddCiagnik::on_pushButtonOk_clicked()      { QueryPrepare(); }
+void AddCiagnik::on_pushButtonAnuluj_clicked()  { this->close(); }
+
+void AddCiagnik::PrepareDialog()
 {
-    delete ui;
+    AddKierowca kierowca;
+    ui->spinBoxIdKierowca->setValue(kierowca.GetLastId());
+    ui->dateEditOs1->setDate(QDate::currentDate());
+    ui->dateEditOs2->setDate(QDate::currentDate());
+    ui->dateEditPrzeglad->setDate(QDate::currentDate());
+    ui->dateTachograf->setDate(QDate::currentDate());
 }
 
 void AddCiagnik::QueryPrepare()
@@ -35,31 +45,5 @@ void AddCiagnik::QueryPrepare()
         QMessageBox::information(NULL, "Dodano", "Wpisane dane dodane do Bazy danych", QMessageBox::Ok);
         this->close();
     }
-    this->close();
-}
-
-void AddCiagnik::PrepareDialog()
-{
-    AddKierowca kierowca;
-    ui->spinBoxIdKierowca->setValue(kierowca.GetLastId());
-    ui->dateEditOs1->setDate(QDate::currentDate());
-    ui->dateEditOs2->setDate(QDate::currentDate());
-    ui->dateEditPrzeglad->setDate(QDate::currentDate());
-    ui->dateTachograf->setDate(QDate::currentDate());
-}
-
-int AddCiagnik::GetLastId()
-{
-    QSqlQuery lastId("SELECT LAST_INSERTED_ID(kierowcaID) as ID from ewidata.kierowca");
-    return lastId.exec();
-}
-
-void AddCiagnik::on_pushButtonOk_clicked()
-{
-    QueryPrepare();
-}
-
-void AddCiagnik::on_pushButtonAnuluj_clicked()
-{
     this->close();
 }
