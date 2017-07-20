@@ -7,31 +7,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Refreshing();
+    OrderBy();
     connect(ui->actionUstawiania, SIGNAL(triggered()), this, SLOT(showPreferencesWindow()));
     connect(ui->actionDodaj, SIGNAL(triggered(bool)), this, SLOT(Add()));
-
+    connect(ui->comboBox_Sort, SIGNAL(currentIndexChanged(QString)), this, SLOT(OrderBy()));
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow()                       { delete ui; }
 
-void MainWindow::setMainColumn()                { mainColumn = 0; }
-void MainWindow::setMainColumn(int column)      { mainColumn += column; }
-void MainWindow::on_Button_Refresh_clicked()    { Refreshing(); }
+void MainWindow::setDatabase()                  { database = QSqlDatabase::addDatabase("QMYSQL"); }
 
-void MainWindow::Refreshing()
-{
-    setMainColumn();
-    MessageDatabase(ConnectDatabase());
-    onC
-}
+void MainWindow::openDatabase()                 { database.open(); }
+void MainWindow::closeDatabase()                { database.close(); }
 
 QString MainWindow::ConnectDatabase()
 {
-    QSqlDatabase database = QSqlDatabase::addDatabase("QMYSQL");
+    setDatabase();
     Preferences pref;
     std::vector <QString> preferencesVector = pref.openFromFile();
 
@@ -41,75 +32,111 @@ QString MainWindow::ConnectDatabase()
     database.setPassword(preferencesVector[3]);
 
     if (database.isValid())
-    {
-        database.open();
         return "Połączono!\n";
-    }
     else
       return "Database Error: " + database.lastError().text();
+    return 0;
 }
 
 void MainWindow::MessageDatabase(QString message)
 {
-    QMessageBox mBox;
-    mBox.setText("Database information");
-    mBox.setInformativeText(message);
-    mBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
-    mBox.setDefaultButton(QMessageBox::Ok);
-    int ret = mBox.exec();
-    // TODO Make this buttons worth something
-    switch (ret)
+    if (bFirstTime)
     {
-    case QMessageBox::Ok:
-        //database.open();
-        break;
-    case QMessageBox::Cancel:
-        //database.close();
-        break;
-    default:
-        break;
+        QMessageBox mBox;
+        mBox.setText("Database information");
+        mBox.setInformativeText(message);
+        mBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+        mBox.setDefaultButton(QMessageBox::Ok);
+        int ret = mBox.exec();
+        switch (ret)
+        {
+        case QMessageBox::Ok:
+            openDatabase();
+            break;
+        case QMessageBox::Cancel:
+            closeDatabase();
+            break;
+        default:
+            break;
+        }
+        bFirstTime = false;
     }
+    else
+        openDatabase();
 }
 
-void MainWindow::PrepareQuery(QString orderByString)
+void MainWindow::OrderBy()
 {
-    // TODO Make sort by Name etc.
-    QSqlQuery kierowca ("SELECT Imie, Nazwisko, NumerDowodu, Pesel FROM ewidata.kierowca ORDER BY " + orderByString);
-    QSqlQuery ciagnik ("SELECT NumerRej FROM ewidata.ciagnik ORDER BY " + orderByString);
-    QSqlQuery naczepa ("SELECT NumerRej FROM ewidata.naczepa ORDER BY " + orderByString);
-    mainQueryVector.push_back(kierowca);
-    mainQueryVector.push_back(ciagnik);
-    mainQueryVector.push_back(naczepa);
+    MessageDatabase(ConnectDatabase());
+    PrepareQuery(ui->comboBox_Sort->currentText());
+    closeDatabase();
+}
 
-    for (int queryCount = 0; queryCount<3; queryCount++)
+void MainWindow::PrepareQuery(QString SOrderBy)
+{
+    if (database.isOpen())
     {
-        QMessageBox::warning(NULL,"For!", "queryCount: " + QString(queryCount),QMessageBox::Ok);
-        if (mainQueryVector[queryCount].isValid())
+        QSqlQuery mainQuery("SELECT * FROM kierowca "
+                            "LEFT JOIN ciagnik ON ciagnik.kierowcaID = kierowca.kierowcaID "
+                            "LEFT JOIN naczepa ON naczepa.kierowcaID = kierowca.kierowcaID "
+                            "ORDER BY kierowca." + SOrderBy);
+
+        if (mainQuery.exec())
         {
-            mainQueryVector[queryCount].exec();
-            FillTable(mainQueryVector[queryCount]);
+            FillTable(mainQuery);
         }
         else
-            QMessageBox::warning(NULL,"Query not Valid!", mainQueryVector[queryCount].lastError().text(),QMessageBox::Ok);
+        {
+            QMessageBox::warning(NULL,"Query not Valid!",mainQuery.lastError().text(), QMessageBox::Ok);
+            CreateTableKierowca();
+            CreateTableCiagnik();
+            CreateTableNaczepa();
+        }
     }
+    else
+        QMessageBox::warning(NULL, "Database not opened", database.lastError().text(), QMessageBox::Ok);
 }
 
 void MainWindow::FillTable(QSqlQuery query)
 {
     ui->tableWidget_Main->setRowCount(query.size());
-    ui->tableWidget_Main->setColumnCount(6);
+    ui->tableWidget_Main->setColumnCount(query.record().count());
     int row = 0;
-    for (int columnCount = mainColumn; columnCount<query.record().count(); columnCount++)
+    for (int columnCount = 0; columnCount<query.record().count(); columnCount++)
         ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(query.record().fieldName(columnCount)));
     // Filling QTableWidget with data from Sql
     while (query.next())
     {
-        for (int columnCount = mainColumn; columnCount<query.record().count(); columnCount++)
+        for (int columnCount = 0; columnCount<query.record().count(); columnCount++)
+        {
             ui->tableWidget_Main->setItem(row, columnCount, new QTableWidgetItem(query.value(columnCount).toString()));
+            ColorTable(query, columnCount, row);
+        }
         row++;
     }
-    setMainColumn(query.size());
 }
+
+QColor MainWindow::IsDateOk(QDate dateFromSql)
+{
+    if (QDate::currentDate().daysTo(dateFromSql) <= 0)
+        return QColor::fromRgb(102,0,0);
+    else if (QDate::currentDate().daysTo(dateFromSql) < 8)
+        return QColor::fromRgb(204,0,0);
+    else if (QDate::currentDate().daysTo(dateFromSql) < 15)
+        return QColor::fromRgb(204,102,0);
+    else if (QDate::currentDate().daysTo(dateFromSql) < 30)
+        return QColor::fromRgb(204,204,0);
+    else
+        return QColor::fromRgb(255,255,255);
+}
+
+void MainWindow::ColorTable(QSqlQuery query, int columnCount, int row)
+{
+
+    if (query.value(columnCount).toDate().isValid())
+        ui->tableWidget_Main->item(row, columnCount)->setBackground(IsDateOk(query.value(columnCount).toDate()));
+}
+
 
 QString MainWindow::CreateTableKierowca()
 {
@@ -128,7 +155,7 @@ QString MainWindow::CreateTableKierowca()
 
 QString MainWindow::CreateTableCiagnik()
 {
-    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRej VARCHAR (20) UNIQUE , "
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRejCiagnik VARCHAR (20) UNIQUE , "
                         "DataPrzegladu DATE, DataTachografu DATE, "
                         "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
                         "ciagnikID INT AUTO_INCREMENT, kierowcaID INT,"
@@ -145,7 +172,7 @@ QString MainWindow::CreateTableCiagnik()
 
 QString MainWindow::CreateTableNaczepa()
 {
-    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRej VARCHAR (20) UNIQUE, "
+    QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRejNaczepa VARCHAR (20) UNIQUE, "
                         "DataPrzegladu DATE, "
                         "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, Os3 INT, DataOsi3 DATE, "
                         "naczepaID INT AUTO_INCREMENT, kierowcaID INT,"
@@ -165,6 +192,7 @@ void MainWindow::showAddKierowcaWindow()
     addKierowcaWindow = new AddKierowca(this);
     addKierowcaWindow->show();
     addKierowcaWindow->exec();
+
 }
 
 void MainWindow::showAddCiagnikWindow()
@@ -190,6 +218,7 @@ void MainWindow::showPreferencesWindow()
 
 void MainWindow::Add()
 {
+    openDatabase();
     QMessageBox mBox;
     mBox.setText("Dodawanie");
     mBox.setInformativeText("Co chciałbyś dodać?");
@@ -203,19 +232,47 @@ void MainWindow::Add()
     if (mBox.clickedButton() == abortButton)
         mBox.close();
     else if (mBox.clickedButton() == addKierowcaButton)
+    {
         showAddKierowcaWindow();
+        Add();
+    }
     else if (mBox.clickedButton() == addCiagnikButton)
+    {
         showAddCiagnikWindow();
+        Add();
+    }
     else if (mBox.clickedButton() == addNaczepaButton)
+    {
         showAddNaczepaWindow();
+        Add();
+    }
+    closeDatabase();
+    OrderBy();
 }
 
-void MainWindow::on_comboBox_Sort_activated(const QString &arg1)
+void MainWindow::EditDatabaseRecord(int kierowcaID, QString valueToChange, QString HeaderName)
 {
-    if (arg1 == "Nazwisko")
-        PrepareQuery("Nazwisko");
-    else if (arg1 == "ID")
-        PrepareQuery("kierowcaID");
-    else if (arg1 == "Pesel")
-        PrepareQuery("Pesel");
+    openDatabase();
+    if (database.isOpen())
+    {
+        QSqlQuery EditData("UPDATE kierowca "
+                           "LEFT JOIN ciagnik ON ciagnik.kierowcaID = kierowca.kierowcaID "
+                           "LEFT JOIN naczepa ON naczepa.kierowcaID = kierowca.kierowcaID "
+                           "SET " + HeaderName + " = " + valueToChange + " WHERE kierowcaID = " + kierowcaID);
+        if (EditData.isValid())
+        {
+            EditData.exec();
+            QMessageBox::information(NULL, "Update info", "Edytowano rekord w bazie danych", QMessageBox::Ok);
+        }
+        else
+            QMessageBox::warning(NULL, "Update Error", EditData.lastError().text(), QMessageBox::Ok);
+        closeDatabase();
+     }
+    else
+        QMessageBox::warning(NULL, "Database Error", database.lastError().text(), QMessageBox::Ok);
+}
+
+void MainWindow::on_tableWidget_Main_cellChanged(int row, int column)
+{
+    //EditDatabaseRecord(ui->tableWidget_Main->item(row,0)->text().toInt(), ui->tableWidget_Main->item(row, column)->text(), ui->tableWidget_Main->horizontalHeaderItem(column)->text());
 }

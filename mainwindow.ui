@@ -15,13 +15,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QPushButton" name="Button_Refresh">
-      <property name="text">
-       <string>Odśwież</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0" colspan="4">
      <widget class="QTableWidget" name="tableWidget_Main"/>
     </item>
@@ -42,12 +35,12 @@
      <widget class="QComboBox" name="comboBox_Sort">
       <item>
        <property name="text">
-        <string>Nazwisko</string>
+        <string>kierowcaID</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>ID</string>
+        <string>Nazwisko</string>
        </property>
       </item>
       <item>
