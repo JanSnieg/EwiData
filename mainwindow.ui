@@ -57,6 +57,16 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="pushButtonDelete">
+      <property name="text">
+       <string>Usuń</string>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QToolBar" name="mainToolBar">

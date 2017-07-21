@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUstawiania, SIGNAL(triggered()), this, SLOT(showPreferencesWindow()));
     connect(ui->actionDodaj, SIGNAL(triggered(bool)), this, SLOT(Add()));
     connect(ui->comboBox_Sort, SIGNAL(currentIndexChanged(QString)), this, SLOT(OrderBy()));
+    connect(ui->tableWidget_Main, SIGNAL(cellChanged(int,int)), this, SLOT(EditDatabaseRecord(int, int)));
+    connect(ui->pushButtonDelete, SIGNAL(clicked(bool)), this, SLOT(DeleteRecord()));
 }
 
 MainWindow::~MainWindow()                       { delete ui; }
@@ -80,7 +82,7 @@ void MainWindow::PrepareQuery(QString SOrderBy)
                             "LEFT JOIN ciagnik ON ciagnik.kierowcaID = kierowca.kierowcaID "
                             "LEFT JOIN naczepa ON naczepa.kierowcaID = kierowca.kierowcaID "
                             "ORDER BY kierowca." + SOrderBy);
-
+        ui->tableWidget_Main->blockSignals(true);
         if (mainQuery.exec())
         {
             FillTable(mainQuery);
@@ -92,6 +94,7 @@ void MainWindow::PrepareQuery(QString SOrderBy)
             CreateTableCiagnik();
             CreateTableNaczepa();
         }
+        ui->tableWidget_Main->blockSignals(false);
     }
     else
         QMessageBox::warning(NULL, "Database not opened", database.lastError().text(), QMessageBox::Ok);
@@ -160,7 +163,9 @@ QString MainWindow::CreateTableCiagnik()
                         "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
                         "ciagnikID INT AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (ciagnikID), "
-                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
+                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID) "
+                        "ON DELETE CASCADE "
+                        "ON UPDATE CASCADE)");
     if (mainQuery.isValid())
     {
         mainQuery.exec();
@@ -177,7 +182,9 @@ QString MainWindow::CreateTableNaczepa()
                         "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, Os3 INT, DataOsi3 DATE, "
                         "naczepaID INT AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (naczepaID), "
-                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID))");
+                        "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID) "
+                        "ON DELETE CASCADE "
+                        "ON UPDATE CASCADE)");
     if (mainQuery.isValid())
     {
         mainQuery.exec();
@@ -250,7 +257,7 @@ void MainWindow::Add()
     OrderBy();
 }
 
-void MainWindow::EditDatabaseRecord(int kierowcaID, QString valueToChange, QString HeaderName)
+void MainWindow::EditDatabaseRecord(int row, int column)
 {
     openDatabase();
     if (database.isOpen())
@@ -258,10 +265,10 @@ void MainWindow::EditDatabaseRecord(int kierowcaID, QString valueToChange, QStri
         QSqlQuery EditData("UPDATE kierowca "
                            "LEFT JOIN ciagnik ON ciagnik.kierowcaID = kierowca.kierowcaID "
                            "LEFT JOIN naczepa ON naczepa.kierowcaID = kierowca.kierowcaID "
-                           "SET " + HeaderName + " = " + valueToChange + " WHERE kierowcaID = " + kierowcaID);
-        if (EditData.isValid())
+                           "SET " + ui->tableWidget_Main->horizontalHeaderItem(column)->text() + " = '"
+                           + ui->tableWidget_Main->item(row, column)->text() + "' WHERE kierowca.kierowcaID = " + ui->tableWidget_Main->item(row,0)->text() + " ");
+        if (EditData.exec())
         {
-            EditData.exec();
             QMessageBox::information(NULL, "Update info", "Edytowano rekord w bazie danych", QMessageBox::Ok);
         }
         else
@@ -270,9 +277,21 @@ void MainWindow::EditDatabaseRecord(int kierowcaID, QString valueToChange, QStri
      }
     else
         QMessageBox::warning(NULL, "Database Error", database.lastError().text(), QMessageBox::Ok);
+    OrderBy();
 }
 
-void MainWindow::on_tableWidget_Main_cellChanged(int row, int column)
+void MainWindow::DeleteRecord()
 {
-    //EditDatabaseRecord(ui->tableWidget_Main->item(row,0)->text().toInt(), ui->tableWidget_Main->item(row, column)->text(), ui->tableWidget_Main->horizontalHeaderItem(column)->text());
+    openDatabase();
+    QSqlQuery DeleteData("DELETE kierowca FROM kierowca "
+                         "WHERE kierowcaID = " + ui->tableWidget_Main->item(ui->tableWidget_Main->currentRow(),0)->text());
+    if (DeleteData.isValid())
+    {
+        DeleteData.exec();
+        QMessageBox::information(NULL,"Delete info", "Record został usunięty",QMessageBox::Ok);
+    }
+    else
+        QMessageBox::warning(NULL, "Delete Error", DeleteData.lastError().text(), QMessageBox::Ok);
+    closeDatabase();
+    OrderBy();
 }
