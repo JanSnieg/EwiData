@@ -28,8 +28,8 @@ void AddNaczepa::PrepareDialog()
 void AddNaczepa::QueryPrepare()
 {
     QSqlQuery addNaczepaQuery;
-    addNaczepaQuery.prepare("INSERT INTO EwiData.naczepa (NumerRejNaczepa, DataPrzegladu, "
-                            "Os1, DataOsi1, Os2, DataOsi2, Os3, DataOsi3, kierowcaID)"
+    addNaczepaQuery.prepare("INSERT INTO EwiData.naczepa (NumerRejNaczepa, DataPrzegladuNaczepa, "
+                            "Os3, DataOsi3, Os4, DataOsi4, Os5, DataOsi5, kierowcaID)"
                              "VALUES (?,?,?,?,?,?,?,?,?)");
     addNaczepaQuery.addBindValue(ui->lineEditNumerRej->text());
     addNaczepaQuery.addBindValue(ui->dateEditPrzeglad->date());

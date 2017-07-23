@@ -7,34 +7,44 @@ Preferences::Preferences(QWidget *parent) :
     ui(new Ui::Preferences)
 {
     ui->setupUi(this);
-    DialogPrepare(openFromFile());
+    DialogPrepare();
 }
 
 Preferences::~Preferences()                         { delete ui; }
 
+void Preferences::setVectorValues()
+{
+    for (int i = 0; i < 4; i++)
+    mainPreferancesVector.push_back("");
+}
+
 void Preferences::on_pushButtonAnuluj_clicked()     { this->close(); }
 void Preferences::on_pushButtonOk_clicked()         { saveIntoFile(); this->close(); }
 
-void Preferences::DialogPrepare(std::vector<QString> preferencesVector)
+void Preferences::DialogPrepare()
 {
-    ui->lineEditHos->setText(preferencesVector[0]);
-    ui->lineEditDatabase->setText(preferencesVector[1]);
-    ui->lineEditUser->setText(preferencesVector[2]);
-    ui->lineEditPassword->setText(preferencesVector[3]);
+    openFromFile();
+    ui->lineEditHos->setText(mainPreferancesVector[0]);
+    ui->lineEditDatabase->setText(mainPreferancesVector[1]);
+    ui->lineEditUser->setText(mainPreferancesVector[2]);
+    ui->lineEditPassword->setText(mainPreferancesVector[3]);
 }
 
-std::vector<QString> Preferences::openFromFile()
+void Preferences::openFromFile()
 {
+    setVectorValues();
+    int lineCount = 0;
     std::string line;
-    std::vector <QString> preferencesVector;
     std::ifstream preferencesFile;
     preferencesFile.open("preferencesFile.txt");
     if (preferencesFile.is_open())
     {
         while (std::getline(preferencesFile, line))
-            preferencesVector.push_back(QString::fromStdString(line));
+        {
+            mainPreferancesVector[lineCount] = (QString::fromStdString(line));
+            lineCount++;
+        }
     }
-    return preferencesVector;
 }
 
 void Preferences::saveIntoFile()

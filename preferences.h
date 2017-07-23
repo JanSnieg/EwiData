@@ -20,8 +20,10 @@ public:
     explicit Preferences(QWidget *parent = 0);
     ~Preferences();
 
-    void DialogPrepare(std::vector<QString>);   //Opens file, and fill lineEdits with data from there
-    std::vector <QString> openFromFile();       //Method that open preferences from preferencesFile and returnig vector filled with preferances
+    std::vector <QString> mainPreferancesVector;
+    void setVectorValues();
+    void DialogPrepare();                       //Opens file, and fill lineEdits with data from there
+    void openFromFile();                        //Method that open preferences from preferencesFile and returnig vector filled with preferances
                                                 //Used in mainWindow::ConnectDatabase() method
     void saveIntoFile();                        //Method to save filled preferances into preferencesFile.txt
 

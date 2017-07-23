@@ -37,7 +37,6 @@ void AddKierowca::QueryPrepare()
     else
     {
         QMessageBox::information(NULL, "Dodano", "Wpisane dane dodane do Bazy danych", QMessageBox::Ok);
-        this->close();
     }
     this->close();
 }

@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setDatabase();
     OrderBy();
     connect(ui->actionUstawiania, SIGNAL(triggered()), this, SLOT(showPreferencesWindow()));
     connect(ui->actionDodaj, SIGNAL(triggered(bool)), this, SLOT(Add()));
@@ -24,14 +25,13 @@ void MainWindow::closeDatabase()                { database.close(); }
 
 QString MainWindow::ConnectDatabase()
 {
-    setDatabase();
     Preferences pref;
-    std::vector <QString> preferencesVector = pref.openFromFile();
+    pref.openFromFile();
 
-    database.setHostName(preferencesVector[0]);
-    database.setDatabaseName(preferencesVector[1]);
-    database.setUserName(preferencesVector[2]);
-    database.setPassword(preferencesVector[3]);
+    database.setHostName(pref.mainPreferancesVector[0]);
+    database.setDatabaseName(pref.mainPreferancesVector[1]);
+    database.setUserName(pref.mainPreferancesVector[2]);
+    database.setPassword(pref.mainPreferancesVector[3]);
 
     if (database.isValid())
         return "Połączono!\n";
@@ -159,7 +159,7 @@ QString MainWindow::CreateTableKierowca()
 QString MainWindow::CreateTableCiagnik()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRejCiagnik VARCHAR (20) UNIQUE , "
-                        "DataPrzegladu DATE, DataTachografu DATE, "
+                        "DataPrzegladuCiagnik DATE, DataTachografu DATE, "
                         "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
                         "ciagnikID INT AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (ciagnikID), "
@@ -178,8 +178,8 @@ QString MainWindow::CreateTableCiagnik()
 QString MainWindow::CreateTableNaczepa()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRejNaczepa VARCHAR (20) UNIQUE, "
-                        "DataPrzegladu DATE, "
-                        "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, Os3 INT, DataOsi3 DATE, "
+                        "DataPrzegladuNaczepa DATE, "
+                        "Os3 INT, DataOsi3 DATE, Os4 INT, DataOsi4 DATE, Os5 INT, DataOsi5 DATE, "
                         "naczepaID INT AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (naczepaID), "
                         "FOREIGN KEY (kierowcaID) REFERENCES kierowca(kierowcaID) "
@@ -199,7 +199,7 @@ void MainWindow::showAddKierowcaWindow()
     addKierowcaWindow = new AddKierowca(this);
     addKierowcaWindow->show();
     addKierowcaWindow->exec();
-
+    closeDatabase();
 }
 
 void MainWindow::showAddCiagnikWindow()
@@ -207,6 +207,7 @@ void MainWindow::showAddCiagnikWindow()
     addCiagnikWindow = new AddCiagnik(this);
     addCiagnikWindow->show();
     addCiagnikWindow->exec();
+    closeDatabase();
 }
 
 void MainWindow::showAddNaczepaWindow()
@@ -214,6 +215,7 @@ void MainWindow::showAddNaczepaWindow()
     AddNaczepaWindow = new AddNaczepa(this);
     AddNaczepaWindow->show();
     AddNaczepaWindow->exec();
+    closeDatabase();
 }
 
 void MainWindow::showPreferencesWindow()
@@ -221,6 +223,7 @@ void MainWindow::showPreferencesWindow()
     PreferencesWindow = new Preferences(this);
     PreferencesWindow->show();
     PreferencesWindow->exec();
+    closeDatabase();
 }
 
 void MainWindow::Add()
@@ -266,7 +269,7 @@ void MainWindow::EditDatabaseRecord(int row, int column)
                            "LEFT JOIN ciagnik ON ciagnik.kierowcaID = kierowca.kierowcaID "
                            "LEFT JOIN naczepa ON naczepa.kierowcaID = kierowca.kierowcaID "
                            "SET " + ui->tableWidget_Main->horizontalHeaderItem(column)->text() + " = '"
-                           + ui->tableWidget_Main->item(row, column)->text() + "' WHERE kierowca.kierowcaID = " + ui->tableWidget_Main->item(row,0)->text() + " ");
+                           + ui->tableWidget_Main->item(row, column)->text() + "' WHERE kierowca.kierowcaID = " + ui->tableWidget_Main->item(row,0)->text());
         if (EditData.exec())
         {
             QMessageBox::information(NULL, "Update info", "Edytowano rekord w bazie danych", QMessageBox::Ok);
@@ -285,11 +288,8 @@ void MainWindow::DeleteRecord()
     openDatabase();
     QSqlQuery DeleteData("DELETE kierowca FROM kierowca "
                          "WHERE kierowcaID = " + ui->tableWidget_Main->item(ui->tableWidget_Main->currentRow(),0)->text());
-    if (DeleteData.isValid())
-    {
-        DeleteData.exec();
+    if (DeleteData.exec())
         QMessageBox::information(NULL,"Delete info", "Record został usunięty",QMessageBox::Ok);
-    }
     else
         QMessageBox::warning(NULL, "Delete Error", DeleteData.lastError().text(), QMessageBox::Ok);
     closeDatabase();

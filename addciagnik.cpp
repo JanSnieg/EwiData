@@ -27,7 +27,7 @@ void AddCiagnik::PrepareDialog()
 void AddCiagnik::QueryPrepare()
 {
     QSqlQuery addCiagnikQuery;
-    addCiagnikQuery.prepare("INSERT INTO EwiData.ciagnik (NumerRejCiagnik, DataPrzegladu, DataTachografu, "
+    addCiagnikQuery.prepare("INSERT INTO EwiData.ciagnik (NumerRejCiagnik, DataPrzegladuCiagnik, DataTachografu, "
                             "os1, DataOsi1, os2, DataOsi2, kierowcaID)"
                              "VALUES (?,?,?,?,?,?,?,?)");
     addCiagnikQuery.addBindValue(ui->lineEditNumerRej->text());
