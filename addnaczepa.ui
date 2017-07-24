@@ -22,7 +22,11 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QDateEdit" name="dateEditPrzeglad"/>
+    <widget class="QDateEdit" name="dateEditPrzeglad">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="6" column="0">
     <widget class="QLineEdit" name="lineEditOs3_2">
@@ -39,13 +43,25 @@
     </widget>
    </item>
    <item row="4" column="2">
-    <widget class="QDateEdit" name="dateEditOs5"/>
+    <widget class="QDateEdit" name="dateEditOs5">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QDateEdit" name="dateEditOs4"/>
+    <widget class="QDateEdit" name="dateEditOs4">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0">
-    <widget class="QDateEdit" name="dateEditOs3_2"/>
+    <widget class="QDateEdit" name="dateEditOs3_2">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="2">
     <widget class="QLabel" name="label_2">
@@ -108,7 +124,11 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QDateEdit" name="dateEditTachograf"/>
+    <widget class="QDateEdit" name="dateEditTachograf">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="8" column="2">
     <widget class="QSpinBox" name="spinBoxIdKierowca"/>
