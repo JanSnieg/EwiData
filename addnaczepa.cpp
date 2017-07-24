@@ -21,18 +21,19 @@ void AddNaczepa::PrepareDialog()
     ui->dateEditOs4->setDate(QDate::currentDate());
     ui->dateEditOs5->setDate(QDate::currentDate());
     ui->dateEditPrzeglad->setDate(QDate::currentDate());
-    ui->dateEditTachograf->setDate(QDate::currentDate());
+    ui->dateEditUbezpieczenie->setDate(QDate::currentDate());
     ui->spinBoxIdKierowca->setValue(kierowca.GetLastId());
 }
 
 void AddNaczepa::QueryPrepare()
 {
     QSqlQuery addNaczepaQuery;
-    addNaczepaQuery.prepare("INSERT INTO EwiData.naczepa (NumerRejNaczepa, DataPrzegladuNaczepa, "
+    addNaczepaQuery.prepare("INSERT INTO EwiData.naczepa (NumerRejNaczepa, DataPrzegladuNaczepa, UbezpieczenieNaczepa, "
                             "Os3, DataOsi3, Os4, DataOsi4, Os5, DataOsi5, kierowcaID)"
-                             "VALUES (?,?,?,?,?,?,?,?,?)");
+                             "VALUES (?,?,?,?,?,?,?,?,?,?)");
     addNaczepaQuery.addBindValue(ui->lineEditNumerRej->text());
     addNaczepaQuery.addBindValue(ui->dateEditPrzeglad->date());
+    addNaczepaQuery.addBindValue(ui->dateEditUbezpieczenie->date());
     addNaczepaQuery.addBindValue(ui->lineEditOs3_2->text().toInt());
     addNaczepaQuery.addBindValue(ui->dateEditOs3_2->date());
     addNaczepaQuery.addBindValue(ui->lineEditOs4->text().toInt());

@@ -106,24 +106,30 @@ void MainWindow::FillTable(QSqlQuery query)
     ui->tableWidget_Main->setColumnCount(query.record().count());
     int row = 0;
     for (int columnCount = 0; columnCount<query.record().count(); columnCount++)
+    {
         ui->tableWidget_Main->setHorizontalHeaderItem(columnCount, new QTableWidgetItem(query.record().fieldName(columnCount)));
+        ui->tableWidget_Main->horizontalHeader()->setStretchLastSection(true);
+    }
     // Filling QTableWidget with data from Sql
     while (query.next())
     {
         for (int columnCount = 0; columnCount<query.record().count(); columnCount++)
         {
             ui->tableWidget_Main->setItem(row, columnCount, new QTableWidgetItem(query.value(columnCount).toString()));
-            ColorTable(query, columnCount, row);
+            if (ColorTable(query, columnCount, row))
+                ui->tableWidget_Main->item(row, 0)->setBackground(QColor::fromRgb(255,153,153));
+
         }
         row++;
     }
+    ui->tableWidget_Main->setVisible(false);
+    ui->tableWidget_Main->resizeColumnsToContents();
+    ui->tableWidget_Main->setVisible(true);
 }
 
 QColor MainWindow::IsDateOk(QDate dateFromSql)
 {
-    if (QDate::currentDate().daysTo(dateFromSql) <= 0)
-        return QColor::fromRgb(102,0,0);
-    else if (QDate::currentDate().daysTo(dateFromSql) < 8)
+    if (QDate::currentDate().daysTo(dateFromSql) < 8)
         return QColor::fromRgb(204,0,0);
     else if (QDate::currentDate().daysTo(dateFromSql) < 15)
         return QColor::fromRgb(204,102,0);
@@ -133,11 +139,27 @@ QColor MainWindow::IsDateOk(QDate dateFromSql)
         return QColor::fromRgb(255,255,255);
 }
 
-void MainWindow::ColorTable(QSqlQuery query, int columnCount, int row)
+bool MainWindow::ColorTable(QSqlQuery query, int columnCount, int row)
 {
 
     if (query.value(columnCount).toDate().isValid())
-        ui->tableWidget_Main->item(row, columnCount)->setBackground(IsDateOk(query.value(columnCount).toDate()));
+    {
+        if (ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi1" ||
+                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi2" ||
+                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi3" ||
+                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi4" ||
+                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi5" )
+        {
+            ui->tableWidget_Main->item(row, columnCount)->setBackground(QColor::fromRgb(255,255,255));
+            return false;
+        }
+        else
+        {
+            ui->tableWidget_Main->item(row, columnCount)->setBackground(IsDateOk(query.value(columnCount).toDate()));
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -145,8 +167,8 @@ QString MainWindow::CreateTableKierowca()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.kierowca(kierowcaID INT UNIQUE PRIMARY KEY NOT NULL AUTO_INCREMENT, "
                         "Imie VARCHAR(20) NOT NULL, Nazwisko VARCHAR(20) NOT NULL, "
-                        "NumerDowodu VARCHAR (20) UNIQUE NOT NULL, DataDowodu DATE, Pesel BIGINT UNIQUE NOT NULL, "
-                        "NumerADR FLOAT(2), DataADR DATE)");
+                        "NumerDowodu VARCHAR (20) UNIQUE NOT NULL, DataPrzyjecia DATE, DataPrawoJazdy DATE, "
+                        "DataADR DATE)");
     if (mainQuery.isValid())
     {
         mainQuery.exec();
@@ -159,7 +181,7 @@ QString MainWindow::CreateTableKierowca()
 QString MainWindow::CreateTableCiagnik()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.ciagnik(NumerRejCiagnik VARCHAR (20) UNIQUE , "
-                        "DataPrzegladuCiagnik DATE, DataTachografu DATE, "
+                        "DataPrzegladuCiagnik DATE, DataTachografu DATE, CzytanieTachografu DATE, UbezpieczenieCiagnik DATE, "
                         "Os1 INT, DataOsi1 DATE, Os2 INT, DataOsi2 DATE, "
                         "ciagnikID INT AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (ciagnikID), "
@@ -178,7 +200,7 @@ QString MainWindow::CreateTableCiagnik()
 QString MainWindow::CreateTableNaczepa()
 {
     QSqlQuery mainQuery("CREATE TABLE IF NOT EXISTS ewidata.naczepa(NumerRejNaczepa VARCHAR (20) UNIQUE, "
-                        "DataPrzegladuNaczepa DATE, "
+                        "DataPrzegladuNaczepa DATE, UbezpieczenieNaczepa DATE, "
                         "Os3 INT, DataOsi3 DATE, Os4 INT, DataOsi4 DATE, Os5 INT, DataOsi5 DATE, "
                         "naczepaID INT AUTO_INCREMENT, kierowcaID INT,"
                         "PRIMARY KEY (naczepaID), "

@@ -17,20 +17,20 @@ void AddKierowca::on_pushButtonAnuluj_clicked() { this->close(); }
 void AddKierowca::PrepareDialog()
 {
     ui->dateEditAdr->setDate(QDate::currentDate());
-    ui->dateEditDoowod->setDate(QDate::currentDate());
+    ui->dateEditPrawoJazdy->setDate(QDate::currentDate());
+    ui->dateEditPrzyjecie->setDate(QDate::currentDate());
 }
 
 void AddKierowca::QueryPrepare()
 {
     QSqlQuery addKierowcaQuery;
-    addKierowcaQuery.prepare("INSERT INTO EwiData.kierowca (Imie, Nazwisko, NumerDowodu, DataDowodu, Pesel, NumerADR, DataADR)"
-                             "VALUES (?,?,?,?,?,?,?)");
+    addKierowcaQuery.prepare("INSERT INTO EwiData.kierowca (Imie, Nazwisko, NumerDowodu, DataPrzyjecia, DataPrawoJazdy, DataADR)"
+                             "VALUES (?,?,?,?,?,?)");
     addKierowcaQuery.addBindValue(ui->lineEditImie->text());
     addKierowcaQuery.addBindValue(ui->lineEditNazwisko->text());
     addKierowcaQuery.addBindValue(ui->lineEditNumerDowodu->text());
-    addKierowcaQuery.addBindValue(ui->dateEditDoowod->date());
-    addKierowcaQuery.addBindValue(ui->lineEditPesel->text().toInt());
-    addKierowcaQuery.addBindValue(ui->doubleSpinBoxAdr->text().toFloat());
+    addKierowcaQuery.addBindValue(ui->dateEditPrzyjecie->date());
+    addKierowcaQuery.addBindValue(ui->dateEditPrawoJazdy->text().toInt());
     addKierowcaQuery.addBindValue(ui->dateEditAdr->date());
     if (!addKierowcaQuery.exec())
         QMessageBox::warning(NULL, addKierowcaQuery.lastQuery(), addKierowcaQuery.lastError().text(), QMessageBox::Ok);

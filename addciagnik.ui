@@ -14,7 +14,7 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="11" column="1">
+   <item row="14" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="pushButtonOk">
@@ -32,13 +32,6 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="1">
-    <widget class="QDateEdit" name="dateTachograf">
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="0">
     <widget class="QDateEdit" name="dateEditOs1">
      <property name="calendarPopup">
@@ -46,10 +39,10 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_3">
+   <item row="4" column="1">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Data wymiany osi1</string>
+      <string>Data wymiany osi2</string>
      </property>
     </widget>
    </item>
@@ -60,14 +53,14 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLabel" name="label_2">
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Data wygaśnięcia Tachografu</string>
+      <string>Data wymiany osi1</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="13" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -79,20 +72,6 @@
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Data wymiany osi2</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>ID kierowcy</string>
-     </property>
-    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QDateEdit" name="dateEditPrzeglad">
@@ -111,16 +90,6 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QDateEdit" name="dateEditOs2">
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QSpinBox" name="spinBoxIdKierowca"/>
-   </item>
    <item row="6" column="1">
     <widget class="QLineEdit" name="lineEditOs2">
      <property name="text">
@@ -132,6 +101,57 @@
     <widget class="QLineEdit" name="lineEditOs1">
      <property name="text">
       <string>Liczba kilimetrów na osi 1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QDateEdit" name="dateEditOs2">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QDateEdit" name="dateEditCzytanie"/>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>ID kierowcy</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QSpinBox" name="spinBoxIdKierowca"/>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Czytanie Tachografu</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDateEdit" name="dateEditUbezpieczenie"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Data wygaśnięcia ubezpieczenia</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Data wygaśnięcia Tachografu</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QDateEdit" name="dateTachograf">
+     <property name="calendarPopup">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

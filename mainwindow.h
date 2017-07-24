@@ -50,7 +50,7 @@ private:
     void PrepareQuery(QString);             //Method that prepare QSqlQuery for other funkcions
     void FillTable(QSqlQuery);              //Method that prepare and fill QTableWighet for Sql data and seting QTableWidget headers names from Sql headers
     QColor IsDateOk(QDate);                 //Method that cheks all Date data from sql, and returns QColor that is used below
-    void ColorTable(QSqlQuery, int, int);   //Colors table with colors from IsDateOk();
+    bool ColorTable(QSqlQuery, int, int);   //Colors table with colors from IsDateOk();
 
     QString CreateTableKierowca();          //Creating table kierowca if not exists in sql
     QString CreateTableCiagnik();           //Creating table ciagnik if not exists in sql

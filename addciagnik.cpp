@@ -22,17 +22,22 @@ void AddCiagnik::PrepareDialog()
     ui->dateEditOs2->setDate(QDate::currentDate());
     ui->dateEditPrzeglad->setDate(QDate::currentDate());
     ui->dateTachograf->setDate(QDate::currentDate());
+    ui->dateEditCzytanie->setDate(QDate::currentDate());
+    ui->dateEditUbezpieczenie->setDate(QDate::currentDate());
 }
 
 void AddCiagnik::QueryPrepare()
 {
     QSqlQuery addCiagnikQuery;
-    addCiagnikQuery.prepare("INSERT INTO EwiData.ciagnik (NumerRejCiagnik, DataPrzegladuCiagnik, DataTachografu, "
+    addCiagnikQuery.prepare("INSERT INTO EwiData.ciagnik (NumerRejCiagnik, DataPrzegladuCiagnik, "
+                            "DataTachografu, CzytanieTachografu, UbezpieczenieCiagnik, "
                             "os1, DataOsi1, os2, DataOsi2, kierowcaID)"
-                             "VALUES (?,?,?,?,?,?,?,?)");
+                             "VALUES (?,?,?,?,?,?,?,?,?,?)");
     addCiagnikQuery.addBindValue(ui->lineEditNumerRej->text());
     addCiagnikQuery.addBindValue(ui->dateEditPrzeglad->date());
     addCiagnikQuery.addBindValue(ui->dateTachograf->date());
+    addCiagnikQuery.addBindValue(ui->dateEditCzytanie->date());
+    addCiagnikQuery.addBindValue(ui->dateEditUbezpieczenie->date());
     addCiagnikQuery.addBindValue(ui->lineEditOs1->text().toInt());
     addCiagnikQuery.addBindValue(ui->dateEditOs1->date());
     addCiagnikQuery.addBindValue(ui->lineEditOs2->text().toInt());
