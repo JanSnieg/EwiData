@@ -30,7 +30,7 @@ void AddKierowca::QueryPrepare()
     addKierowcaQuery.addBindValue(ui->lineEditNazwisko->text());
     addKierowcaQuery.addBindValue(ui->lineEditNumerDowodu->text());
     addKierowcaQuery.addBindValue(ui->dateEditPrzyjecie->date());
-    addKierowcaQuery.addBindValue(ui->dateEditPrawoJazdy->text().toInt());
+    addKierowcaQuery.addBindValue(ui->dateEditPrawoJazdy->date());
     addKierowcaQuery.addBindValue(ui->dateEditAdr->date());
     if (!addKierowcaQuery.exec())
         QMessageBox::warning(NULL, addKierowcaQuery.lastQuery(), addKierowcaQuery.lastError().text(), QMessageBox::Ok);

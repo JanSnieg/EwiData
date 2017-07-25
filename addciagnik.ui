@@ -86,6 +86,12 @@
       <string/>
      </property>
      <property name="text">
+      <string/>
+     </property>
+     <property name="frame">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
       <string>Numer Rejestracyjny</string>
      </property>
     </widget>
@@ -93,6 +99,9 @@
    <item row="6" column="1">
     <widget class="QLineEdit" name="lineEditOs2">
      <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
       <string>Liczba kilometów na osi 2</string>
      </property>
     </widget>
@@ -100,6 +109,9 @@
    <item row="6" column="0">
     <widget class="QLineEdit" name="lineEditOs1">
      <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
       <string>Liczba kilimetrów na osi 1</string>
      </property>
     </widget>
@@ -112,7 +124,11 @@
     </widget>
    </item>
    <item row="9" column="1">
-    <widget class="QDateEdit" name="dateEditCzytanie"/>
+    <widget class="QDateEdit" name="dateEditCzytanie">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="11" column="1">
     <widget class="QLabel" name="label_5">
@@ -122,7 +138,11 @@
     </widget>
    </item>
    <item row="12" column="1">
-    <widget class="QSpinBox" name="spinBoxIdKierowca"/>
+    <widget class="QSpinBox" name="spinBoxIdKierowca">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="7" column="1">
     <widget class="QLabel" name="label_7">
@@ -132,7 +152,11 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QDateEdit" name="dateEditUbezpieczenie"/>
+    <widget class="QDateEdit" name="dateEditUbezpieczenie">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="1">
     <widget class="QLabel" name="label_6">
@@ -156,7 +180,38 @@
     </widget>
    </item>
   </layout>
+  <zorder>label_4</zorder>
+  <zorder>label</zorder>
+  <zorder>label_3</zorder>
+  <zorder>label_5</zorder>
+  <zorder>label_7</zorder>
+  <zorder>label_6</zorder>
+  <zorder>label_2</zorder>
+  <zorder>spinBoxIdKierowca</zorder>
+  <zorder>dateEditCzytanie</zorder>
+  <zorder>dateTachograf</zorder>
+  <zorder>lineEditOs2</zorder>
+  <zorder>dateEditOs2</zorder>
+  <zorder>lineEditOs1</zorder>
+  <zorder>dateEditOs1</zorder>
+  <zorder>dateEditUbezpieczenie</zorder>
+  <zorder>dateEditPrzeglad</zorder>
+  <zorder>lineEditNumerRej</zorder>
  </widget>
+ <tabstops>
+  <tabstop>lineEditNumerRej</tabstop>
+  <tabstop>dateEditPrzeglad</tabstop>
+  <tabstop>dateEditUbezpieczenie</tabstop>
+  <tabstop>dateEditOs1</tabstop>
+  <tabstop>lineEditOs1</tabstop>
+  <tabstop>dateEditOs2</tabstop>
+  <tabstop>lineEditOs2</tabstop>
+  <tabstop>dateTachograf</tabstop>
+  <tabstop>dateEditCzytanie</tabstop>
+  <tabstop>spinBoxIdKierowca</tabstop>
+  <tabstop>pushButtonOk</tabstop>
+  <tabstop>pushButtonAnuluj</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

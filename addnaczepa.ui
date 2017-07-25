@@ -31,6 +31,9 @@
    <item row="6" column="0">
     <widget class="QLineEdit" name="lineEditOs3_2">
      <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
       <string>Liczba kilimetrów na osi 3</string>
      </property>
     </widget>
@@ -38,6 +41,9 @@
    <item row="6" column="1">
     <widget class="QLineEdit" name="lineEditOs4">
      <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
       <string>Liczba kilimetrów na osi 4</string>
      </property>
     </widget>
@@ -105,6 +111,9 @@
    <item row="6" column="2">
     <widget class="QLineEdit" name="lineEditOs5">
      <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
       <string>Liczba kilimetrów na osi 5</string>
      </property>
     </widget>
@@ -112,6 +121,9 @@
    <item row="0" column="0" colspan="3">
     <widget class="QLineEdit" name="lineEditNumerRej">
      <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
       <string>Numer Rejestracyjny</string>
      </property>
     </widget>
@@ -140,7 +152,11 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QDateEdit" name="dateEditUbezpieczenie"/>
+    <widget class="QDateEdit" name="dateEditUbezpieczenie">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="2">
     <widget class="QLabel" name="label_7">
@@ -151,6 +167,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditNumerRej</tabstop>
+  <tabstop>dateEditPrzeglad</tabstop>
+  <tabstop>dateEditUbezpieczenie</tabstop>
+  <tabstop>dateEditOs3_2</tabstop>
+  <tabstop>lineEditOs3_2</tabstop>
+  <tabstop>dateEditOs4</tabstop>
+  <tabstop>lineEditOs4</tabstop>
+  <tabstop>dateEditOs5</tabstop>
+  <tabstop>lineEditOs5</tabstop>
+  <tabstop>spinBoxIdKierowca</tabstop>
+  <tabstop>pushButtonOk</tabstop>
+  <tabstop>pushButtonAnuluj</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

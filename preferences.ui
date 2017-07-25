@@ -100,6 +100,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditHos</tabstop>
+  <tabstop>lineEditDatabase</tabstop>
+  <tabstop>lineEditUser</tabstop>
+  <tabstop>lineEditPassword</tabstop>
+  <tabstop>pushButtonOk</tabstop>
+  <tabstop>pushButtonAnuluj</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
