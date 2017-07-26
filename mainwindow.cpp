@@ -148,7 +148,8 @@ bool MainWindow::ColorTable(QSqlQuery query, int columnCount, int row)
                 ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi2" ||
                 ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi3" ||
                 ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi4" ||
-                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi5" )
+                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataOsi5" ||
+                ui->tableWidget_Main->horizontalHeaderItem(columnCount)->text() == "DataPrzyjecia")
         {
             ui->tableWidget_Main->item(row, columnCount)->setBackground(QColor::fromRgb(255,255,255));
             return false;
